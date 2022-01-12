@@ -6,11 +6,8 @@ import os
 import nltk
 from nltk.corpus import stopwords
 
-
 if not list(set(stopwords.words('english'))):
     nltk.download('stopwords')
-
-# pd.options.mode.chained_assignment = None  # default='warn'
 
 
 def df_fuzzy_merge(df_1, df_2, left_on, right_on, threshold=80, limit=1, fm_stopwords="", how="inner"):
@@ -65,7 +62,6 @@ def df_fuzzy_merge(df_1, df_2, left_on, right_on, threshold=80, limit=1, fm_stop
     # merge based on the matches, suffixes to drop the columns later
     df_1 = df_1.merge(df_2, how=how, left_on='match', right_on='match_key', suffixes=['', '_y'])
 
-
     # drop the matching name columns since this is a left join
     df_1 = df_1[df_1.columns.drop(list(df_1.filter(regex='_y')))]
     df_1 = df_1[df_1.columns.drop(['match_key', 'match'])]
@@ -86,36 +82,41 @@ def return_stop_words():
     return english_stopwords
 
 
-local_path = os.path.dirname(os.path.abspath(__file__))
-f = open(os.path.join(local_path, "common_words.json"))
-stop_words = json.load(f)['words']
+def testing():
+    local_path = os.path.dirname(os.path.abspath(__file__))
+    f = open(os.path.join(local_path, "common_words.json"))
+    stop_words = json.load(f)['words']
 
-# Example code
-first_df = pd.read_csv("data_1.csv")
-second_df = pd.read_csv("data_2.csv")
+    # Example code
+    first_df = pd.read_csv("data_1.csv")
+    second_df = pd.read_csv("data_2.csv")
 
-merged_df = df_fuzzy_merge(first_df, second_df, left_on=['last_name', 'first_name', 'school'],
-                     right_on=['first_name', 'school', 'last_name'])
+    merged_df = df_fuzzy_merge(first_df, second_df, left_on=['last_name', 'first_name', 'school'],
+                               right_on=['first_name', 'school', 'last_name'])
 
-# check the results
-print('nltk Stop Words Inner Join')
-print(merged_df)
-print('\n')
+    # check the results
+    print('nltk Stop Words Inner Join')
+    print(merged_df)
+    print('\n')
 
-# try with custom stop words
-print('Custom Stop Words Inner Join')
-merged_df = df_fuzzy_merge(first_df, second_df, left_on=['last_name', 'first_name', 'school'],
-                     right_on=['first_name', 'school', 'last_name'], fm_stopwords= stop_words)
-merged_df.to_csv('output.csv')
+    # try with custom stop words
+    print('Custom Stop Words Inner Join')
+    merged_df = df_fuzzy_merge(first_df, second_df, left_on=['last_name', 'first_name', 'school'],
+                               right_on=['first_name', 'school', 'last_name'], fm_stopwords=stop_words)
 
-# should print additonal matches with custom stop words
-print(merged_df)
-print('\n')
+    merged_df.to_csv('output.csv')
 
-# try with left join stop words
-print('Custom Stop Words Left Join')
-merged_df = df_fuzzy_merge(first_df, second_df, how='left', left_on=['last_name', 'first_name', 'school'],
-                     right_on=['first_name', 'school', 'last_name'], fm_stopwords= stop_words)
+    # should print additonal matches with custom stop words
+    print(merged_df)
+    print('\n')
 
-# should print additonal matches with custom stop words
-print(merged_df)
+    # try with left join stop words
+    print('Custom Stop Words Left Join')
+    merged_df = df_fuzzy_merge(first_df, second_df, how='left', left_on=['last_name', 'first_name', 'school'],
+                               right_on=['first_name', 'school', 'last_name'], fm_stopwords=stop_words)
+
+    # should print additonal matches with custom stop words
+    print(merged_df)
+
+testing()
+
